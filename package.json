@@ -1,0 +1,11 @@
+{
+  "name": "resort-map-app",
+  "version": "1.0.0",
+  "description": "Resort map application",
+  "scripts": {
+    "start": "node start.js"
+  },
+  "devDependencies": {
+    "yargs": "^17.7.2"
+  }
+}
