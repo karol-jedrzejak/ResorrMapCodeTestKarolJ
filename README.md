@@ -4,7 +4,7 @@ An interactive map for reserving poolside lounge chairs at a hotel.
 
 ## Features
 
-- Interactive map showing lounge chairs (W), pool (p), roads (#), restrooms (c), and empty spaces (.).
+- Interactive map showing lounge chairs (cabana), pool, roads, restrooms, and empty spaces.
 - Book lounge chairs by clicking on available ones.
 - Validation against guest list.
 - Real-time updates of chair availability.
@@ -67,5 +67,3 @@ This project includes automated tests written with guidance from an AI assistant
 
 - "Create automated tests covering core backend and frontend functionality, validating booking logic, REST API behavior, map updates, and UI responses to typical user actions. Document how to run all tests in the README."
 - "Refactor backend code to allow unit testing of the API without needing to start the server"
-
-These prompts helped guide the creation of Jest + Supertest tests for the backend and React Testing Library tests for the frontend.

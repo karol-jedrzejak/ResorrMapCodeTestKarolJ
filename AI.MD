@@ -3,7 +3,7 @@ Regarding AI/LLM usage:
 First, I sent the application description with the readme with additional info to github copilot:
 - description for the AI ​​regarding the graphic files, so that it knew about the road tiles and that they should be rotated depending on whether there were other roads around it (i noted original position and that they should be rotated 0,90,180 or 270 degrees)
 - I described what format I want the frame sent via the API to be
-- i noted that is should build backend with node.js nad frontend with react typescript
+- i noted that it should build backend with node.js nad frontend with react typescript
 - i noted that i want the cabana image to bo formatted via css based on availability
 
 Ai provided me with the first build of the app with separated frontend and backend. I worked but there was problem with rotation of the road tiles. It also lack the color for cabana availability.
@@ -16,4 +16,6 @@ Next i noticed there was an issue with padding between cells. I manually adjuste
 
 Then i asked github copilot to create automated test. Initially, it had a problem and got stuck in a loop. But after stopping and asking for error corrections, it created the tests correctly.
 
-After that i tweaked the css and frontend manually (with some AI snippets form github copilot). I also added different color (yellow) for currently selected cabana.
+After that i tweaked the css and frontend manually (with some AI snippets from github copilot). I also added different color (yellow) for currently selected cabana.
+
+Lastly i checked app functionality with different map and bookings file.
