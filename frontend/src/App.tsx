@@ -9,10 +9,13 @@ interface Cell {
   guestName: string | null;
 }
 
+type Colors = 'red' | 'green' | 'blue';
+
+
 function App() {
   const [map, setMap] = useState<Cell[][]>([]);
   const [booking, setBooking] = useState<{row: number, col: number} | null>(null);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState<{text: string, color: Colors}>({text: '', color: 'blue'});
 
   useEffect(() => {
     fetchMap();
@@ -24,17 +27,17 @@ function App() {
       const data = await res.json();
       setMap(data);
     } catch (error) {
-      setMessage('Failed to load map');
+      setMessage({text:'Failed to load map', color: 'red'});
     }
   };
 
   const handleClick = (row: number, col: number, cell: Cell) => {
     if (cell.type === 'W' && !cell.occupied) {
       setBooking({row, col});
-      setMessage('');
+      setMessage({text: '', color: 'blue'});
     } else if (cell.type === 'W' && cell.occupied) {
       setBooking(null);
-      setMessage('This chair is already occupied.');
+      setMessage({text: 'This cabana is already occupied.', color: 'red'});
     }
   };
 
@@ -48,13 +51,13 @@ function App() {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage('Booking successful!');
+        setMessage({text: 'Booking successful!', color: 'green'});
         fetchMap();
       } else {
-        setMessage(data.error);
+        setMessage({text: data.error, color: 'red'});
       }
     } catch (error) {
-      setMessage('Booking failed');
+      setMessage({text: 'Booking failed', color: 'red'});
     }
     setBooking(null);
   };
@@ -79,12 +82,17 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Resort Map</h1>
+      <h1>CABANA BOOKING</h1>
       <div className="map">
         {map.map((row, i) => (
           <div key={i} className="row">
             {row.map((cell, j) => {
               const image = getImage(cell);
+              const isSelected = booking?.row === i && booking?.col === j;
+              const imgClass = cell.type === 'W'
+                ? (cell.occupied ? 'occupied' : (isSelected ? 'selected' : 'available'))
+                : '';
+
               return (
                 <div
                   key={j}
@@ -95,7 +103,7 @@ function App() {
                     <img
                       src={`/assets/${image}`}
                       alt={cell.type}
-                      className={cell.type === 'W' ? (cell.occupied ? 'occupied' : 'available') : ''}
+                      className={imgClass}
                       style={{transform: `rotate(${cell.rotation}deg)`}}
                     />
                   )}
@@ -105,11 +113,13 @@ function App() {
           </div>
         ))}
       </div>
-      {message && <p className="message">{message}</p>}
+      {message.text && <p className="message" style={{color: message.color}}>
+        {message.text}
+      </p>}
       <div className="booking-form">
         {booking ? (
-          <>
-            <h2>Book Chair</h2>
+          <div className="booking-details">
+            <h2>BOOK CABANA</h2>
             <input type="text" placeholder="Room Number" id="room" />
             <input type="text" placeholder="Guest Name" id="name" />
             <button onClick={() => {
@@ -118,7 +128,7 @@ function App() {
               handleBook(room, name);
             }}>Book</button>
             <button onClick={() => setBooking(null)}>Cancel</button>
-          </>
+          </div>
         ) : (
           <p>Click on an available cabana to book it.</p>
         )}

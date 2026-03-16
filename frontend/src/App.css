@@ -3,12 +3,15 @@
 }
 
 .map {
+  padding: 10px;
   display: inline-block;
   border: 1px solid #000;
+  border-radius: 5px;
 }
 
 .row {
   display: block;
+  height: 32px;
 }
 
 .cell {
@@ -30,12 +33,18 @@
 }
 
 .occupied {
+  filter: invert(14%) sepia(94%) saturate(7486%) hue-rotate(357deg) brightness(96%) contrast(110%);
+}
+
+.selected {
   filter: invert(1) sepia(1) saturate(8) hue-rotate(-10deg) brightness(0.9);
 }
 
+
 .booking-form {
-  margin: 20px auto 0;
+  margin: 20px auto 20px;
   border: 1px solid #ccc;
+  border-radius: 5px;
   padding: 10px;
   max-width: 400px;
   text-align: center;
@@ -44,4 +53,10 @@
 .message {
   color: blue;
   font-weight: bold;
+}
+
+.booking-details{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }

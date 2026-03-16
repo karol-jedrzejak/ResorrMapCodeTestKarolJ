@@ -16,22 +16,20 @@ function runCommand(command, args, cwd, callback) {
 }
 
 const argv = yargs.argv;
-const mapPath = argv.map || 'ResortMapCodeTest/map.ascii';
-const bookingsPath = argv.bookings || 'ResortMapCodeTest/bookings.json';
+const mapPath = argv.map || 'map.ascii';
+const bookingsPath = argv.bookings || 'bookings.json';
 
 // Install dependencies
-runCommand('npm', ['install'], process.cwd(), () => {
-  runCommand('npm', ['install'], 'backend', () => {
-    runCommand('npm', ['install'], 'frontend', () => {
-      // Start backend and frontend
-      const backend = spawn('node', ['backend/server.js', '--map', mapPath, '--bookings', bookingsPath], { stdio: 'inherit' });
-      const frontend = spawn('cmd', ['/c', 'cd frontend && npm start'], { stdio: 'inherit' });
+runCommand('npm', ['install'], 'backend', () => {
+  runCommand('npm', ['install'], 'frontend', () => {
+    // Start backend and frontend
+    const backend = spawn('node', ['backend/server.js', '--map', mapPath, '--bookings', bookingsPath], { stdio: 'inherit' });
+    const frontend = spawn('cmd', ['/c', 'cd frontend && npm start'], { stdio: 'inherit' });
 
-      process.on('SIGINT', () => {
-        backend.kill();
-        frontend.kill();
-        process.exit();
-      });
+    process.on('SIGINT', () => {
+      backend.kill();
+      frontend.kill();
+      process.exit();
     });
   });
 });
