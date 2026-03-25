@@ -65,11 +65,22 @@ export class MapService {
 
     if (!validGuest) throw new Error('Guest not found in booking list');
 
-    const alreadyAssigned = map.some(r =>
+
+  // 🔥 NOWA LOGIKA – znajdź i zwolnij poprzednią kabinę
+  for (const r of map) {
+    for (const c of r) {
+      if (c.guestName === guestName) {
+        c.occupied = false;
+        c.guestName = null;
+      }
+    }
+  }
+
+/*     const alreadyAssigned = map.some(r =>
       r.some(c => c.guestName === guestName)
     );
 
-    if (alreadyAssigned) throw new Error('Guest already has a cabana');
+    if (alreadyAssigned) throw new Error('Guest already has a cabana'); */
 
     cell.occupied = true;
     cell.guestName = guestName;
