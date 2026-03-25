@@ -1,5 +1,11 @@
 import type { Cell } from '../models/types.ts';
-import { loadMapFromFile } from '../loaders/mapLoader.ts';
+import { loadMapFile } from '../loaders/mapLoader.ts';
+import { parseMap } from '../utils/parseMap.ts';
+import { getCachedMap, setCachedMap } from '../cache/map.cache.ts';
+import {
+  getCachedBookings,
+  setCachedBookings
+} from '../cache/booking.cache.ts';
 import { loadBookings } from '../loaders/bookingLoader.ts';
 
 export class MapService {
@@ -12,11 +18,25 @@ export class MapService {
     this.bookingsPath = bookingsPath;
   }
 
+  private getBookings() {
+    const cached = getCachedBookings(this.bookingsPath);
+    if (cached) return cached;
+
+    const bookings = loadBookings(this.bookingsPath);
+    setCachedBookings(this.bookingsPath, bookings);
+
+    return bookings;
+  }
+
   getMap(): Cell[][] {
-    if (!this.mapCache) {
-      this.mapCache = loadMapFromFile(this.mapPath);
-    }
-    return this.mapCache;
+    const cached = getCachedMap(this.mapPath);
+    if (cached) return cached;
+
+    const rawMap = loadMapFile(this.mapPath);
+    const parsed = parseMap(rawMap);
+
+    setCachedMap(this.mapPath, parsed);
+    return parsed;
   }
 
   bookCabana({
@@ -37,7 +57,7 @@ export class MapService {
     if (cell.type !== 'W') throw new Error('Not a cabana');
     if (cell.occupied) throw new Error('Already occupied');
 
-    const bookings = loadBookings(this.bookingsPath);
+    const bookings = this.getBookings();
 
     const validGuest = bookings.find(
       b => b.room === room && b.guestName === guestName

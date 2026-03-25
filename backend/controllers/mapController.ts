@@ -1,24 +1,24 @@
 import type { Request, Response } from 'express';
-import * as mapService from '../services/mapService.ts';
-
+import { MapService } from '../services/mapService.ts';
 
 export const getMap = (req: Request, res: Response) => {
-  const map = mapService.getMap();
-  res.json(map);
+// Przekazujemy dynamiczne ścieżki z app.locals
+  const mapService = new MapService(
+    req.app.locals.mapPath!,
+    req.app.locals.bookingsPath!
+  );
+  res.json(mapService.getMap());
 };
 
 export const bookCabana = (req: Request, res: Response) => {
+  const { row, col, room, guestName } = req.body;
   try {
-    const { row, col, room, guestName } = req.body;
-
-    const result = mapService.bookCabana({
-      row,
-      col,
-      room,
-      guestName
-    });
-
-    res.json({ message: 'Booking successful', data: result });
+    const mapService = new MapService(
+      req.app.locals.mapPath!,
+      req.app.locals.bookingsPath!
+    );
+    const cell = mapService.bookCabana({ row, col, room, guestName });
+    res.json(cell);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
