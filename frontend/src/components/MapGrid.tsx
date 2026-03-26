@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { getCellAsset } from '../utils/assetMapper.ts'; // Logika mapowania ikon
+import { getCellAsset } from '../utils/assetMapper.ts';
 import { Cell } from "../models/types";
 
 interface MapGridProps {
@@ -43,7 +43,6 @@ export const MapGrid: React.FC<MapGridProps> = ({ map, selectedCell, onCellClick
   );
 };
 
-// Pomocnicza funkcja do klas CSS (można przenieść do osobnego pliku utils)
 const getImgClass = (cell: Cell, isSelected: boolean): string => {
   if (cell.type !== 'W') return '';
   if (cell.occupied) return 'occupied';

@@ -15,5 +15,4 @@ export const loadBookings = (filePath: string): Booking[] => {
   return cache;
 };
 
-// pamiętamy, z którego pliku jest cache
 let cacheFilePath: string | null = null;

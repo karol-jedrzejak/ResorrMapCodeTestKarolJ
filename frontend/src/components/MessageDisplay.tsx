@@ -13,7 +13,7 @@ export const MessageDisplay: React.FC<MessageProps> = ({ message, color }) => {
       <p 
         className="message" 
         style={{ color, fontWeight: 'bold', textAlign: 'center' }}
-        role="alert" // Dobre dla dostępności (Accessibility)
+        role="alert"
       >
         {message}
       </p>

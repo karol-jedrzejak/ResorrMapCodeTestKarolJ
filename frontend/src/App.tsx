@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import './App.css';
-import { useBooking } from './hooks/useBooking.ts'; // Logika biznesowa
-import { MapGrid } from './components/MapGrid.tsx';     // Wydzielony komponent mapy
-import { BookingForm } from './components/BookingForm.tsx'; // Wydzielony formularz
-import { MessageDisplay } from './components/MessageDisplay.tsx'; // UI komunikatów
+import { useBooking } from './hooks/useBooking.ts'; 
+import { MapGrid } from './components/MapGrid.tsx';    
+import { BookingForm } from './components/BookingForm.tsx'; 
+import { MessageDisplay } from './components/MessageDisplay.tsx';
 
 function App() {
   const { 
@@ -16,10 +16,9 @@ function App() {
     handleSelectCell
   } = useBooking();
 
-  // Pobranie danych przy montowaniu - czyste i czytelne
   useEffect(() => {
     loadMap();
-  }, []);
+  }, [loadMap]);
 
   return (
     <div className="App">
@@ -28,14 +27,12 @@ function App() {
       </header>
 
       <main>
-        {/* Mapa jako osobny komponent - czysty props drilling */}
         <MapGrid 
           map={map} 
           selectedCell={selectedCell} 
           onCellClick={handleSelectCell}
         />
 
-        {/* Komunikaty o błędach/sukcesie */}
         <MessageDisplay message={status.text} color={status.color} />
 
         <section className="booking-form">

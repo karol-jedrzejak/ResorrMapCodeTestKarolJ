@@ -31,11 +31,9 @@ export const useBooking = () => {
   const handleSelectCell = (row: number, col: number, cell: Cell) => {
     if (cell.type === 'W') {
       if (cell.occupied) {
-        // Jeśli zajęta: czyścimy wybór (chowa formularz) i dajemy komunikat
         setSelectedCell(null);
         setStatus({ text: 'This cabana is already occupied.', color: 'red' });
       } else {
-        // Jeśli wolna: ustawiamy wybór (pokazuje formularz) i czyścimy błędy
         setSelectedCell({ row, col });
         setStatus({ text: '', color: 'blue' });
       }

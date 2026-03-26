@@ -2,7 +2,6 @@ import type { Request, Response } from 'express';
 import { MapService } from '../services/mapService.ts';
 
 export const getMap = (req: Request, res: Response) => {
-// Przekazujemy dynamiczne ścieżki z app.locals
   const mapService = new MapService(
     req.app.locals.mapPath!,
     req.app.locals.bookingsPath!

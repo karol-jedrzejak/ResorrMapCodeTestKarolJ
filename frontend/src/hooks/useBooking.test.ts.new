@@ -1,0 +1,209 @@
+// BDD-style tests for useBooking hook using Given-When-Then pattern
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { useBooking } from './useBooking';
+import * as bookingApiModule from '../api/bookingApi';
+import { Cell } from '../models/types';
+
+// Manual mock for bookingApi
+jest.mock('../api/bookingApi');
+
+const mockBookingApi = bookingApiModule.bookingApi as jest.Mocked<typeof bookingApiModule.bookingApi>;
+
+describe('useBooking Hook - BDD Style Tests', () => {
+  // Test Pyramid: Unit tests (base layer)
+  const mockMap: Cell[][] = [
+    [
+      { type: '.', occupied: false, shape: null, rotation: 0, guestName: null },
+      { type: 'W', occupied: false, shape: null, rotation: 0, guestName: null }
+    ],
+    [
+      { type: '#', occupied: false, shape: 'straight', rotation: 0, guestName: null },
+      { type: 'W', occupied: false, shape: null, rotation: 0, guestName: null }
+    ]
+  ];
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('Feature: Map Loading', () => {
+    describe('Scenario: User loads the map on initialization', () => {
+      it('should successfully load map data', async () => {
+        // GIVEN a booking API that returns map data
+        mockBookingApi.fetchMap = jest.fn().mockResolvedValue(mockMap);
+
+        // WHEN the hook is first rendered
+        const { result } = renderHook(() => useBooking());
+        
+        // WHEN loadMap is called
+        await act(async () => {
+          await result.current.loadMap();
+        });
+
+        // THEN the map should be populated with data
+        expect(result.current.map).toEqual(mockMap);
+        expect(mockBookingApi.fetchMap).toHaveBeenCalled();
+      });
+
+      it('should handle map loading failure gracefully', async () => {
+        // GIVEN a booking API that fails
+        const errorMessage = 'Failed to load map';
+        mockBookingApi.fetchMap = jest.fn().mockRejectedValue(new Error(errorMessage));
+
+        // WHEN the hook is first rendered
+        const { result } = renderHook(() => useBooking());
+        
+        // WHEN loadMap is called
+        await act(async () => {
+          await result.current.loadMap();
+        });
+
+        // THEN status should show error
+        expect(result.current.status.text).toBe(errorMessage);
+        expect(result.current.status.color).toBe('red');
+        expect(result.current.map).toEqual([]);
+      });
+    });
+  });
+
+  describe('Feature: Cell Selection', () => {
+    describe('Scenario: User selects an available cabana', () => {
+      it('should select available cabana and clear status', () => {
+        // GIVEN an available cabana cell
+        const { result } = renderHook(() => useBooking());
+        const availableCell: Cell = { 
+          type: 'W', 
+          occupied: false, 
+          shape: null, 
+          rotation: 0, 
+          guestName: null 
+        };
+
+        // WHEN the cell is clicked
+        act(() => {
+          result.current.handleSelectCell(0, 1, availableCell);
+        });
+
+        // THEN the cell should be selected
+        expect(result.current.selectedCell).toEqual({ row: 0, col: 1 });
+        expect(result.current.status.text).toBe('');
+      });
+    });
+
+    describe('Scenario: User selects an occupied cabana', () => {
+      it('should reject occupied cabana and show error', () => {
+        // GIVEN an occupied cabana cell
+        const { result } = renderHook(() => useBooking());
+        const occupiedCell: Cell = { 
+          type: 'W', 
+          occupied: true, 
+          shape: null, 
+          rotation: 0, 
+          guestName: 'John' 
+        };
+
+        // WHEN the cell is clicked
+        act(() => {
+          result.current.handleSelectCell(0, 1, occupiedCell);
+        });
+
+        // THEN the selection should be cleared
+        expect(result.current.selectedCell).toBeNull();
+        // AND error message should appear
+        expect(result.current.status.text).toContain('already occupied');
+        expect(result.current.status.color).toBe('red');
+      });
+    });
+
+    describe('Scenario: User selects non-cabana cell', () => {
+      it('should not select non-W cells', () => {
+        // GIVEN a non-cabana cell (pool or road)
+        const { result } = renderHook(() => useBooking());
+        const nonCabanaCell: Cell = { 
+          type: '.', 
+          occupied: false, 
+          shape: null, 
+          rotation: 0, 
+          guestName: null 
+        };
+
+        // WHEN the cell is clicked
+        act(() => {
+          result.current.handleSelectCell(0, 0, nonCabanaCell);
+        });
+
+        // THEN nothing should be selected
+        expect(result.current.selectedCell).toBeNull();
+      });
+    });
+  });
+
+  describe('Feature: Cabana Booking', () => {
+    describe('Scenario: User successfully books an available cabana', () => {
+      it('should book cabana and reload map', async () => {
+        // GIVEN a user has selected a cabana and the booking API is working
+        mockBookingApi.bookCabana = jest.fn().mockResolvedValue({ success: true });
+        mockBookingApi.fetchMap = jest.fn().mockResolvedValue(mockMap);
+
+        const { result } = renderHook(() => useBooking());
+        
+        // AND the user has selected a cell
+        act(() => {
+          result.current.handleSelectCell(0, 1, mockMap[0][1]);
+        });
+
+        // WHEN handleBooking is called
+        await act(async () => {
+          await result.current.handleBooking('101', 'Alice Smith');
+        });
+
+        // THEN booking should succeed
+        expect(result.current.status.text).toBe('Booking successful!');
+        expect(result.current.status.color).toBe('green');
+        // AND selection should be cleared
+        expect(result.current.selectedCell).toBeNull();
+        // AND map should be reloaded
+        expect(mockBookingApi.fetchMap).toHaveBeenCalled();
+      });
+
+      it('should handle booking errors', async () => {
+        // GIVEN booking API returns an error
+        const errorMessage = 'Invalid room number';
+        mockBookingApi.bookCabana = jest.fn()
+          .mockRejectedValue(new Error(errorMessage));
+        mockBookingApi.fetchMap = jest.fn().mockResolvedValue(mockMap);
+
+        const { result } = renderHook(() => useBooking());
+        
+        // AND user has selected a cell
+        act(() => {
+          result.current.handleSelectCell(0, 1, mockMap[0][1]);
+        });
+
+        // WHEN handleBooking is called
+        await act(async () => {
+          await result.current.handleBooking('999', 'Unknown');
+        });
+
+        // THEN error should be shown
+        expect(result.current.status.text).toBe(errorMessage);
+        expect(result.current.status.color).toBe('red');
+        // AND selection should remain (allowing user to retry)
+        expect(result.current.selectedCell).toEqual({ row: 0, col: 1 });
+      });
+
+      it('should not attempt booking without selected cell', async () => {
+        // GIVEN no cell is selected
+        const { result } = renderHook(() => useBooking());
+
+        // WHEN handleBooking is called
+        await act(async () => {
+          await result.current.handleBooking('101', 'Alice Smith');
+        });
+
+        // THEN booking should not be attempted
+        expect(mockBookingApi.bookCabana).not.toHaveBeenCalled();
+      });
+    });
+  });
+});

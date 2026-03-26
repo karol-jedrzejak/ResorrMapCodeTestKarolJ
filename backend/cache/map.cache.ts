@@ -12,3 +12,10 @@ export const setCachedMap = (filePath: string, data: Cell[][]) => {
   cache = data;
   cacheFilePath = filePath;
 };
+
+export const clearMapCache = (filePath?: string) => {
+  if (!filePath || cacheFilePath === filePath) {
+    cache = null;
+    cacheFilePath = null;
+  }
+};

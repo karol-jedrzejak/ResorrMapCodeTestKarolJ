@@ -8,7 +8,6 @@ export function createApp({ mapPath, bookingsPath }) {
   app.use(cors());
   app.use(express.json());
 
-  // Przekazujemy ścieżki do routera przez locals
   app.locals.mapPath = mapPath;
   app.locals.bookingsPath = bookingsPath;
 
